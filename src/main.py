@@ -1,50 +1,55 @@
-from numpy.random import choice
-import random
-import matplotlib.pyplot as plt
 import itertools
+import random
+import threading
 
-LINE_CLEAR = '\x1b[2K'   
-rounds = 1000
-def pull_valk(amount_wanted=1):    
-    global rounds
+import matplotlib.pyplot as plt
+from numpy.random import choice
+
+LINE_CLEAR = "\x1b[2K"
+ROUNDS = 1000
+
+
+def show_histogram(data, title):
+    plt.figure()
+    plt.hist(data)
+    plt.title(title)
+    plt.xlabel("Pulls")
+    plt.ylabel("Frequency")
+
+
+def pull_valk(amount_wanted=1):
     item_wanted = "valk"
-    items = [item_wanted,"not"]
-    probabilities = [0.015, 1-0.015]
+    items = [item_wanted, "not"]
+    probabilities = [0.015, 1 - 0.015]
 
     pull_success_results = []
 
-    for x in range(rounds):
+    for x in range(ROUNDS):
         pull_count = 0
         item_got = ""
         amount_got = 0
         pity_100 = 0
         while amount_got < amount_wanted:
-            item_got = choice(items,p=probabilities)
+            item_got = choice(items, p=probabilities)
             pity_100 += 1
-            pull_count += 1            
+            pull_count += 1
             if pity_100 == 100:
                 amount_got += 1
                 pity_100 = 0
-            elif item_got == item_wanted:                
+            elif item_got == item_wanted:
                 amount_got += 1
 
-        #pull_count = pull_count if pull_count < 100 else 100
-        print(f"Got {item_wanted} {amount_wanted}x in {pull_count} pulls", end='\r') 
-        print(end=LINE_CLEAR)    
-        
+        # pull_count = pull_count if pull_count < 100 else 100
+        print(f"Got {item_wanted} {amount_wanted}x in {pull_count} pulls", end="\r")
+        print(end=LINE_CLEAR)
+
         pull_success_results.append(pull_count)
 
-    print(f"Average pulls to get {item_wanted}: {sum(pull_success_results) / rounds}") 
-    plt.hist(pull_success_results)
-    plt.title("Valk pull successes")
-    plt.xlabel("Pulls")
-    plt.ylabel("Frequency")
-    plt.show()
+    print(f"Average pulls to get {item_wanted}: {sum(pull_success_results) / ROUNDS}")
+    return pull_success_results
 
-def pull_gears(): 
-    def remove_dupes(x):
-        return list(dict.fromkeys(x))
 
+def pull_gears():
     def find_num_missing_stigs(stigs_dict):
         count = 0
         for x in stigs_dict.values():
@@ -58,57 +63,56 @@ def pull_gears():
             count += x
         return count
 
-    global rounds
-
-    items = ["wep","stig1","stig2","stig3","not"]
-    
+    items = ["wep", "stig1", "stig2", "stig3", "not"]
 
     items_wanted = items[:-1]
 
-    probabilities = [.02479, .01240, .01240, .01240, 0.93801]
-    
+    probabilities = [0.02479, 0.01240, 0.01240, 0.01240, 0.93801]
+
     pull_success_results = []
 
-    for x in range(rounds):
+    for x in range(ROUNDS):
         item_counts = dict.fromkeys(items, 0)
         pull_count = 0
         pity_count = 0
         item_got = ""
         items_got = []
-        amount_got = 0
         while len(items_got) < len(items_wanted):
-            item_got = choice(items,p=probabilities)
+            item_got = choice(items, p=probabilities)
             if pity_count == 50:
                 rand = random.choice([x for x in items_wanted if x not in items_got])
                 items_got.append(rand)
                 item_counts[rand] += 1
                 pity_count = 0
-            elif item_got in items_wanted: #it's the item you want
-                if item_got not in items_got: #you don't have it yet
-                    items_got.append(item_got)                    
+            elif item_got in items_wanted:  # it's the item you want
+                if item_got not in items_got:  # you don't have it yet
+                    items_got.append(item_got)
                     pity_count = 0
                 item_counts[item_got] += 1
             else:
                 pity_count += 1
             pull_count += 1
 
-            just_stigs = dict(itertools.islice(item_counts.items(), 1,4))
-            if find_num_missing_stigs(just_stigs) == 1 and get_owned_stigs_count(just_stigs) >= 4:
+            just_stigs = dict(itertools.islice(item_counts.items(), 1, 4))
+            if (
+                find_num_missing_stigs(just_stigs) == 1
+                and get_owned_stigs_count(just_stigs) >= 4
+            ):
                 print("Could be wishing welled! --------->", end=" ")
                 break
 
         print(item_counts, f"{pull_count} pulls")
-        #print(f"Got all gear {items_got} in {pull_count} pulls", end='\r')    
-        print(end=LINE_CLEAR)    
+        # print(f"Got all gear {items_got} in {pull_count} pulls", end='\r')
+        print(end=LINE_CLEAR)
         pull_success_results.append(pull_count)
 
-    print(f"Average pulls to get all gear: {sum(pull_success_results) / rounds}") 
-    plt.hist(pull_success_results)
-    plt.title("Stig pull successes")
-    plt.xlabel("Pulls")
-    plt.ylabel("Frequency")
-    plt.show()
+    print(f"Average pulls to get all gear: {sum(pull_success_results) / ROUNDS}")
 
-#pull_valk()    
-pull_gears()
+    return pull_success_results
 
+
+valk_res = pull_valk()
+gear_res = pull_gears()
+show_histogram(valk_res, "Valk pull successes")
+show_histogram(gear_res, "Stig pull successes")
+plt.show()
