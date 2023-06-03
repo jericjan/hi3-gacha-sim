@@ -1,11 +1,9 @@
 import itertools
 import random
-import threading
 
 import matplotlib.pyplot as plt
 from numpy.random import choice
 
-LINE_CLEAR = "\x1b[2K"
 ROUNDS = 1000
 
 
@@ -39,14 +37,12 @@ def pull_valk(amount_wanted=1):
             elif item_got == item_wanted:
                 amount_got += 1
 
-        # pull_count = pull_count if pull_count < 100 else 100
-        print(f"Got {item_wanted} {amount_wanted}x in {pull_count} pulls", end="\r")
-        print(end=LINE_CLEAR)
+        print(f"Got {item_wanted} {amount_wanted}x in {str(pull_count).ljust(3)} pulls")
 
         pull_success_results.append(pull_count)
 
-    print(f"Average pulls to get {item_wanted}: {sum(pull_success_results) / ROUNDS}")
-    return pull_success_results
+    valk_avg = sum(pull_success_results) / ROUNDS
+    return pull_success_results, valk_avg
 
 
 def pull_gears():
@@ -77,6 +73,7 @@ def pull_gears():
         pity_count = 0
         item_got = ""
         items_got = []
+        wishing_well_msg = ""
         while len(items_got) < len(items_wanted):
             item_got = choice(items, p=probabilities)
             if pity_count == 50:
@@ -95,24 +92,34 @@ def pull_gears():
 
             just_stigs = dict(itertools.islice(item_counts.items(), 1, 4))
             if (
-                find_num_missing_stigs(just_stigs) == 1
+                item_counts["wep"] > 0
+                and find_num_missing_stigs(just_stigs) == 1
                 and get_owned_stigs_count(just_stigs) >= 4
             ):
-                print("Could be wishing welled! --------->", end=" ")
+                wishing_well_msg = "(Wishing well-able)"
                 break
 
-        print(item_counts, f"{pull_count} pulls")
+        item_counts = dict(
+            itertools.islice(item_counts.items(), 0, 4)
+        )  # removes the "not" key
+        print(item_counts, f"{str(pull_count).ljust(3)} pulls", wishing_well_msg)
         # print(f"Got all gear {items_got} in {pull_count} pulls", end='\r')
-        print(end=LINE_CLEAR)
         pull_success_results.append(pull_count)
 
-    print(f"Average pulls to get all gear: {sum(pull_success_results) / ROUNDS}")
+    gear_avg = sum(pull_success_results) / ROUNDS
 
-    return pull_success_results
+    return pull_success_results, gear_avg
 
 
-valk_res = pull_valk()
-gear_res = pull_gears()
+valk_res, valk_avg = pull_valk()
+gear_res, gear_avg = pull_gears()
+
+valk_xtals = valk_avg * 280
+gear_xtals = gear_avg * 280
+
+print(f"Average pulls to get valk: {valk_avg} ({valk_xtals} crystals)")
+print(f"Average pulls to get all gear: {gear_avg} ({gear_xtals} crystals)")
+print(f"Total crystals to 4/4 on average: {valk_xtals + gear_xtals}")
 show_histogram(valk_res, "Valk pull successes")
 show_histogram(gear_res, "Stig pull successes")
 plt.show()
