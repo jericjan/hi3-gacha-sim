@@ -1,15 +1,16 @@
 import itertools
 import random
+import statistics
 
 import matplotlib.pyplot as plt
 from numpy.random import choice
 
-ROUNDS = 1000
+ROUNDS = 10000
 
 
 def show_histogram(data, title):
     plt.figure()
-    plt.hist(data)
+    plt.hist(data, bins=50)
     plt.title(title)
     plt.xlabel("Pulls")
     plt.ylabel("Frequency")
@@ -117,9 +118,20 @@ gear_res, gear_avg = pull_gears()
 valk_xtals = valk_avg * 280
 gear_xtals = gear_avg * 280
 
+def calc_mean_median_mode(data):
+    print(f"Mean: {statistics.mean(data)}")
+    print(f"Median: {statistics.median(data)}")
+    print(f"Mode: {statistics.multimode(data)}")
+
+
 print(f"Average pulls to get valk: {valk_avg} ({valk_xtals} crystals)")
 print(f"Average pulls to get all gear: {gear_avg} ({gear_xtals} crystals)")
 print(f"Total crystals to 4/4 on average: {valk_xtals + gear_xtals}")
+print("\n")
+print("Valk statistics:")
+calc_mean_median_mode(valk_res)
+print("Gear statistics:")
+calc_mean_median_mode(gear_res)
 show_histogram(valk_res, "Valk pull successes")
 show_histogram(gear_res, "Stig pull successes")
 plt.show()
