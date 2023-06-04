@@ -22,10 +22,9 @@ def show_histogram(data, title, bin_count=100, cumulative=False, fig_num = None,
     plt.ylabel("Probablity" if cumulative else "Frequency")
     if label:
         ax = plt.gcf().axes[0]
-        ax.legend(prop={'size': 10})
-    # if cumulative:  
-    #     plt.plot(0, .5, 200, .5, color="red")
-    return n, bins
+        legend = ax.legend(prop={'size': 10})
+
+    return n, bins, label
 
 def pull_valk(amount_wanted=1):
     item_wanted = "valk"
@@ -176,31 +175,70 @@ calc_mean_median_mode(no_well_combined_res)
 
 show_histogram(valk_res, "Valk pull successes", 10)
 show_histogram(gear_res, "Stig pull successes w/ wishing well")
-values, bins = show_histogram(valk_res, "Valk pull successes (cumulative)", cumulative=True)
-# fig_num = show_histogram(gear_res, "Stig pull successes (cumulative)", cumulative=True, alpha=0.5, label="w/ wishing well")
-# show_histogram(no_well_gear_res, "Stig pull successes (cumulative)", cumulative=True, fig_num=fig_num, alpha=0.5, label="w/o wishing well")
-show_histogram([gear_res, no_well_gear_res], "Stig pull successes (cumulative)", cumulative=True, alpha=0.5, label=["w/ wishing well", "w/o wishing well"])
 
-show_histogram([combined_res, no_well_combined_res], "Combined pull successes (cumulative)", cumulative=True, alpha=0.5, label=["w/ wishing well", "w/o wishing well"])
+
+
+
+
 
 
 
 class Xcalculator:
-    def __init__(self, values, bins):
+    def __init__(self, values, bins, labels=None):
         self.values = values
         self.bins = bins
+        self.labels = labels
+        self.dic = {x: [] for x in self.labels}
     def calculate_x_value(self, y_value):
         # cumulative_sum = np.cumsum(self.values) #no need cuz alr cumsum'd
-        # cumulative_sum /= cumulative_sum[-1] 
-        index = np.where(self.values >= y_value)[0][0] #gets first array, then gets first element >= y
-        x_value = self.bins[index]
-        print(f"{x_value} pulls has a {y_value*100}% chance")
+        # cumulative_sum /= cumulative_sum[-1]         
+        #if len(self.values) > 1:
+        if isinstance(self.values, np.ndarray) and all(isinstance(x, np.ndarray) for x in self.values):
+            #dic = self.dic
+            for idx, x in enumerate(self.values):
+                index = np.where(x >= y_value)[0][0]
+                x_value = self.bins[index]
+                label = self.labels[idx]                
+                self.dic[label].append(f"{x_value} pulls has a {y_value*100}% chance")                
+            #self.dic = dic
+        else:
+            index = np.where(self.values >= y_value)[0][0]
+            x_value = self.bins[index]
+            self.dic[self.labels[0]].append(f"{x_value} pulls has a {y_value*100}% chance")                            
+    def show_all(self):    
+        for key, values in self.dic.items():
+            print(key)
+            for value in values:    
+                print(f"\t{value}")
 
-xcal = Xcalculator(values, bins)
+values, bins, labels = show_histogram(valk_res, "Valk pull successes (cumulative)", cumulative=True)
+print("VALK ONLY:")
+xcal = Xcalculator(values, bins, ["Valk pulls"])
 xcal.calculate_x_value(0.25)
 xcal.calculate_x_value(0.5)
 xcal.calculate_x_value(0.75)
 xcal.calculate_x_value(0.90)
 xcal.calculate_x_value(0.95)
+xcal.show_all()
+
+values, bins, labels = show_histogram([gear_res, no_well_gear_res], "Gear pull successes (cumulative)", cumulative=True, alpha=0.5, label=["w/ wishing well", "w/o wishing well"])
+print("GEARS ONLY:")
+xcal = Xcalculator(values, bins, labels)
+xcal.calculate_x_value(0.25)
+xcal.calculate_x_value(0.5)
+xcal.calculate_x_value(0.75)
+xcal.calculate_x_value(0.90)
+xcal.calculate_x_value(0.95)
+xcal.show_all()
+
+values, bins, labels = show_histogram([combined_res, no_well_combined_res], "Combined pull successes (cumulative)", cumulative=True, alpha=0.5, label=["w/ wishing well", "w/o wishing well"])
+print("COMBINED:")
+xcal = Xcalculator(values, bins, labels)
+xcal.calculate_x_value(0.25)
+xcal.calculate_x_value(0.5)
+xcal.calculate_x_value(0.75)
+xcal.calculate_x_value(0.90)
+xcal.calculate_x_value(0.95)
+xcal.show_all()
 
 plt.show()
