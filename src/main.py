@@ -8,10 +8,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import choice
 
-ROUNDS = 1000
+ROUNDS = 10000
 
 
-def show_histogram(data, title, bin_count=100, cumulative=False, fig_num = None, alpha=1, label=None):    
+def show_histogram(data, title, bin_count=1000, cumulative=False, fig_num = None, alpha=1, label=None):    
     if fig_num is None:
         plt.figure()
     else:
