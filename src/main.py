@@ -8,13 +8,21 @@ from numpy.random import choice
 ROUNDS = 10000
 
 
-def show_histogram(data, title):
-    plt.figure()
-    plt.hist(data, bins=50)
+def show_histogram(data, title, bin_count=100, cumulative=False, fig_num = None, alpha=1, label=None):    
+    if fig_num is None:
+        plt.figure()
+    else:
+        plt.figure(fig_num)
+    plt.hist(data, histtype='stepfilled', bins=bin_count,cumulative=cumulative, density=True if cumulative else False, alpha=alpha, label=label)
     plt.title(title)
     plt.xlabel("Pulls")
-    plt.ylabel("Frequency")
-
+    plt.ylabel("Probablity" if cumulative else "Frequency")
+    if label:
+        ax = plt.gcf().axes[0]
+        ax.legend(prop={'size': 10})
+    # if cumulative:  
+    #     plt.plot(0, .5, 200, .5, color="red")
+    return plt.gcf().number
 
 def pull_valk(amount_wanted=1):
     item_wanted = "valk"
@@ -46,7 +54,7 @@ def pull_valk(amount_wanted=1):
     return pull_success_results, valk_avg
 
 
-def pull_gears():
+def pull_gears(wishing_well=True):
     def find_num_missing_stigs(stigs_dict):
         count = 0
         for x in stigs_dict.values():
@@ -91,14 +99,15 @@ def pull_gears():
                 pity_count += 1
             pull_count += 1
 
-            just_stigs = dict(itertools.islice(item_counts.items(), 1, 4))
-            if (
-                item_counts["wep"] > 0
-                and find_num_missing_stigs(just_stigs) == 1
-                and get_owned_stigs_count(just_stigs) >= 4
-            ):
-                wishing_well_msg = "(Wishing well-able)"
-                break
+            if wishing_well:
+                just_stigs = dict(itertools.islice(item_counts.items(), 1, 4))
+                if (
+                    item_counts["wep"] > 0
+                    and find_num_missing_stigs(just_stigs) == 1
+                    and get_owned_stigs_count(just_stigs) >= 4
+                ):
+                    wishing_well_msg = "(Wishing well-able)"
+                    break
 
         item_counts = dict(
             itertools.islice(item_counts.items(), 0, 4)
@@ -113,15 +122,24 @@ def pull_gears():
 
 
 valk_res, valk_avg = pull_valk()
-gear_res, gear_avg = pull_gears()
+gear_res, gear_avg = pull_gears(wishing_well=True)
+no_well_gear_res, no_well_gear_avg = pull_gears(wishing_well=False)
+
+combined_res = [x+y for x, y in zip(valk_res, gear_res)]
+no_well_combined_res = [x+y for x, y in zip(valk_res, no_well_gear_res)]
 
 valk_xtals = valk_avg * 280
 gear_xtals = gear_avg * 280
 
 def calc_mean_median_mode(data):
-    print(f"Mean: {statistics.mean(data)}")
-    print(f"Median: {statistics.median(data)}")
-    print(f"Mode: {statistics.multimode(data)}")
+    mean = statistics.mean(data)
+    print(f"Mean: {mean} ({mean*280} pulls)")
+
+    median = statistics.median(data)
+    print(f"Median: {median} ({median*280} pulls)")
+
+    mode = statistics.multimode(data)
+    print(f"Mode: {mode} ({[x*280 for x in mode]}) pulls")
 
 
 print(f"Average pulls to get valk: {valk_avg} ({valk_xtals} crystals)")
@@ -130,8 +148,25 @@ print(f"Total crystals to 4/4 on average: {valk_xtals + gear_xtals}")
 print("\n")
 print("Valk statistics:")
 calc_mean_median_mode(valk_res)
-print("Gear statistics:")
+
+print("\nGear statistics:")
+print("With wishing well:")
 calc_mean_median_mode(gear_res)
-show_histogram(valk_res, "Valk pull successes")
-show_histogram(gear_res, "Stig pull successes")
+print("Without wishing well:")
+calc_mean_median_mode(no_well_gear_res)
+
+print("\nCombined statistics")
+print("With wishing well:")
+calc_mean_median_mode(combined_res)
+print("Without wishing well:")
+calc_mean_median_mode(no_well_combined_res)
+
+show_histogram(valk_res, "Valk pull successes", 10)
+show_histogram(gear_res, "Stig pull successes w/ wishing well")
+show_histogram(valk_res, "Valk pull successes (cumulative)", cumulative=True)
+# fig_num = show_histogram(gear_res, "Stig pull successes (cumulative)", cumulative=True, alpha=0.5, label="w/ wishing well")
+# show_histogram(no_well_gear_res, "Stig pull successes (cumulative)", cumulative=True, fig_num=fig_num, alpha=0.5, label="w/o wishing well")
+show_histogram([gear_res, no_well_gear_res], "Stig pull successes (cumulative)", cumulative=True, alpha=0.5, label=["w/ wishing well", "w/o wishing well"])
+
+show_histogram([combined_res, no_well_combined_res], "Combined pull successes (cumulative)", cumulative=True, alpha=0.5, label=["w/ wishing well", "w/o wishing well"])
 plt.show()
