@@ -157,15 +157,15 @@ gear_xtals = statistics.mean(gear_res) * 280
 
 def calc_mean_median_mode(data):
     mean = statistics.mean(data)
-    print(f"Mean: {mean} ({mean*280} xtals)")
+    print(f"Mean: {mean:.2f} ({(mean*280):.2f} xtals)")
 
     median = statistics.median(data)
-    print(f"Median: {median} ({median*280} xtals)")
+    print(f"Median: {median:.2f} ({(median*280):.2f} xtals)")
 
     mode = statistics.multimode(data)
-    print(f"Mode: {mode} ({[x*280 for x in mode]}) xtals")
+    print(f"Mode: {', '.join(str(x) for x in mode)} ({', '.join([str(x*280) for x in mode])} xtals)")
 
-    print(f"Min: {min(data)} Max: {max(data)}")
+    print(f"Min: {min(data):.2f} Max: {max(data):.2f}")
 
 print(f"Average pulls to get valk: {statistics.mean(valk_res)} ({valk_xtals} crystals)")
 print(f"Average pulls to get all gear: {statistics.mean(gear_res)} ({gear_xtals} crystals)")
@@ -212,17 +212,17 @@ class Xcalculator:
                 index = np.where(x >= y_value)[0][0]
                 x_value = self.bins[index]
                 label = self.labels[idx]                
-                self.dic[label].append(f"{x_value} pulls has a {y_value*100}% chance")                
+                self.dic[label].append(f"{x_value:.2f} pulls has a {y_value*100}% chance")                
             #self.dic = dic
         else:
             index = np.where(self.values >= y_value)[0][0]
             x_value = self.bins[index]
-            self.dic[self.labels[0]].append(f"{x_value} pulls has a {y_value*100}% chance")                            
+            self.dic[self.labels[0]].append(f"{x_value:.2f} pulls has a {y_value*100}% chance")                            
     def show_all(self):    
         for key, values in self.dic.items():
             print(key)
             for value in values:    
-                print(f"\t{value}")
+                print(f"- {value}")
 
 values, bins, labels = show_histogram(valk_res, "Valk pull successes (cumulative)", cumulative=True)
 print("VALK ONLY:")
