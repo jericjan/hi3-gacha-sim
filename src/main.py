@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import choice
 
-ROUNDS = 10000
+ROUNDS = 100000
 
 
 def show_histogram(data, title, bin_count=1000, cumulative=False, fig_num = None, alpha=1, label=None):    
@@ -187,7 +187,7 @@ print("Without wishing well:")
 calc_mean_median_mode(no_well_combined_res)
 
 show_histogram(valk_res, "Valk pull successes", 10)
-show_histogram(gear_res, "Stig pull successes w/ wishing well")
+show_histogram(gear_res, "Gear pull successes w/ wishing well")
 
 
 
