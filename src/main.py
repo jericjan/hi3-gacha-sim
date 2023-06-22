@@ -76,25 +76,35 @@ def pull_gears(wishing_well=True):
     probabilities = [0.02479, 0.01240, 0.01240, 0.01240, 0.93801]
 
     pull_success_results = []
-
-    for x in range(ROUNDS):
+    
+    for idx, x in enumerate(range(ROUNDS)):
         item_counts = dict.fromkeys(items, 0)
         pull_count = 0
         pity_count = 0
         item_got = ""
         items_got = []
         wishing_well_msg = ""
+        last_round_logs = []
         while len(items_got) < len(items_wanted):
+            last_round_logs.append(f"=====ROUND {str(idx+1).ljust(len(str(ROUNDS)))}; PULL {str(pull_count).ljust(3)}; PITY {str(pity_count).ljust(3)}; START!!!======= {item_counts}")            
+            if pull_count > 200:
+                with open("log.txt", "w") as f:
+                    f.write('\n'.join(last_round_logs))
+                    print("stig pull exceeded 200. exiting")
+                    exit()
+
             item_got = choice(items, p=probabilities)
-            if pity_count == 50:
+            if pity_count == 49: # it just has to be this way, trust me
                 rand = random.choice([x for x in items_wanted if x not in items_got])
                 items_got.append(rand)
                 item_counts[rand] += 1
                 pity_count = 0
-            elif item_got in items_wanted:  # it's the item you want
+            elif item_got in items_wanted:  # it's one of the items you want
                 if item_got not in items_got:  # you don't have it yet
                     items_got.append(item_got)
                     pity_count = 0
+                else:                  # you alr have it
+                    pity_count += 1
                 item_counts[item_got] += 1
             else:
                 pity_count += 1
@@ -109,6 +119,7 @@ def pull_gears(wishing_well=True):
                 ):
                     wishing_well_msg = "(Wishing well-able)"
                     break
+            last_round_logs.append(f"=====ROUND {str(idx+1).ljust(len(str(ROUNDS)))}; PULL {str(pull_count).ljust(3)}; PITY {str(pity_count).ljust(3)}; END!!!======= {item_counts}")
 
         item_counts = dict(
             itertools.islice(item_counts.items(), 0, 4)
@@ -131,6 +142,7 @@ else:
 
     valk_res = pull_valk()
     gear_res = pull_gears(wishing_well=True)
+    
     no_well_gear_res = pull_gears(wishing_well=False)
 
     with Path("pull_data.json").open("w") as f:
@@ -153,6 +165,7 @@ def calc_mean_median_mode(data):
     mode = statistics.multimode(data)
     print(f"Mode: {mode} ({[x*280 for x in mode]}) xtals")
 
+    print(f"Min: {min(data)} Max: {max(data)}")
 
 print(f"Average pulls to get valk: {statistics.mean(valk_res)} ({valk_xtals} crystals)")
 print(f"Average pulls to get all gear: {statistics.mean(gear_res)} ({gear_xtals} crystals)")
