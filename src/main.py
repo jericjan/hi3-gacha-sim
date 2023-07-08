@@ -1,5 +1,6 @@
 import itertools
 import json
+import logging
 import random
 import statistics
 from pathlib import Path
@@ -8,8 +9,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import choice
 
-ROUNDS = 100000
-
+ROUNDS = 10000
+logging.basicConfig(level=logging.INFO)
 
 def show_histogram(data, title, bin_count=1000, cumulative=False, fig_num = None, alpha=1, label=None):    
     if fig_num is None:
@@ -26,7 +27,7 @@ def show_histogram(data, title, bin_count=1000, cumulative=False, fig_num = None
 
     return n, bins, label
 
-def pull_valk(amount_wanted=1):
+def pull_valk(amount_wanted=1, pity=100):
     item_wanted = "valk"
     items = [item_wanted, "not"]
     probabilities = [0.015, 1 - 0.015]
@@ -42,20 +43,20 @@ def pull_valk(amount_wanted=1):
             item_got = choice(items, p=probabilities)
             pity_100 += 1
             pull_count += 1
-            if pity_100 == 100:
+            if pity_100 == pity:
                 amount_got += 1
                 pity_100 = 0
             elif item_got == item_wanted:
                 amount_got += 1
 
-        print(f"Got {item_wanted} {amount_wanted}x in {str(pull_count).ljust(3)} pulls")
+        logging.debug(f"Got {item_wanted} {amount_wanted}x in {str(pull_count).ljust(3)} pulls")
 
         pull_success_results.append(pull_count)
 
     return pull_success_results
 
 
-def pull_gears(wishing_well=True):
+def pull_gears(wishing_well=True, gear_pity=50):
     def find_num_missing_stigs(stigs_dict):
         count = 0
         for x in stigs_dict.values():
@@ -68,6 +69,8 @@ def pull_gears(wishing_well=True):
         for x in stigs_dict.values():
             count += x
         return count
+
+    gear_pity = gear_pity - 1 # it just has to be this way, trust me
 
     items = ["wep", "stig1", "stig2", "stig3", "not"]
 
@@ -94,7 +97,7 @@ def pull_gears(wishing_well=True):
                     exit()
 
             item_got = choice(items, p=probabilities)
-            if pity_count == 49: # it just has to be this way, trust me
+            if pity_count == gear_pity: 
                 rand = random.choice([x for x in items_wanted if x not in items_got])
                 items_got.append(rand)
                 item_counts[rand] += 1
@@ -124,7 +127,7 @@ def pull_gears(wishing_well=True):
         item_counts = dict(
             itertools.islice(item_counts.items(), 0, 4)
         )  # removes the "not" key
-        print(item_counts, f"{str(pull_count).ljust(3)} pulls", wishing_well_msg)
+        logging.debug(item_counts, f"{str(pull_count).ljust(3)} pulls", wishing_well_msg)
         # print(f"Got all gear {items_got} in {pull_count} pulls", end='\r')
         pull_success_results.append(pull_count)
 
@@ -139,10 +142,11 @@ if save_file.exists():
         gear_res = dic['gears']
         no_well_gear_res = dic['no_well_gears']
 else:
-
+    logging.info("Pulling valks")
     valk_res = pull_valk()
+    logging.info("Pulling gears w/ wishing well")
     gear_res = pull_gears(wishing_well=True)
-    
+    logging.info("Pulling gears w/o wishing well")
     no_well_gear_res = pull_gears(wishing_well=False)
 
     with Path("pull_data.json").open("w") as f:
