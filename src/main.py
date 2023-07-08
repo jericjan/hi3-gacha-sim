@@ -234,17 +234,17 @@ gear_xtals = statistics.mean(gear_res) * 280
 
 def calc_mean_median_mode(data):
     mean = statistics.mean(data)
-    print(f"Mean: {mean:.2f} ({(mean*280):.2f} xtals)")
+    print(f"- Mean: {mean:.2f} ({(mean*280):.2f} xtals)")
 
     median = statistics.median(data)
-    print(f"Median: {median:.2f} ({(median*280):.2f} xtals)")
+    print(f"- Median: {median:.2f} ({(median*280):.2f} xtals)")
 
     mode = statistics.multimode(data)
     print(
-        f"Mode: {', '.join(str(x) for x in mode)} ({', '.join([str(x*280) for x in mode])} xtals)"
+        f"- Mode: {', '.join(str(x) for x in mode)} ({', '.join([str(x*280) for x in mode])} xtals)"
     )
 
-    print(f"Min: {min(data):.2f} Max: {max(data):.2f}")
+    print(f"- Min: {min(data):.2f} Max: {max(data):.2f}")
 
 
 print(f"Average pulls to get valk: {statistics.mean(valk_res)} ({valk_xtals} crystals)")
@@ -326,7 +326,7 @@ values, bins, labels = show_histogram(
     "Gear pull successes (cumulative)",
     cumulative=True,
     alpha=0.5,
-    label=["w/ wishing well", "w/o wishing well"],
+    label=["With wishing well:", "Without wishing well:"],
 )
 print("GEARS ONLY:")
 xcal = Xcalculator(values, bins, labels)
@@ -342,7 +342,7 @@ values, bins, labels = show_histogram(
     "Combined pull successes (cumulative)",
     cumulative=True,
     alpha=0.5,
-    label=["w/ wishing well", "w/o wishing well"],
+    label=["With wishing well:", "Without wishing well:"],
 )
 print("COMBINED:")
 xcal = Xcalculator(values, bins, labels)

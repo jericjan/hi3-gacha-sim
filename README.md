@@ -78,3 +78,32 @@ Without wishing well:
 - 184.91 pulls has a 75.0% chance
 - 215.76 pulls has a 90.0% chance
 - 230.76 pulls has a 95.0% chance
+
+## SP Gears (30 pity)
+![SP Gear pull successes](img/sp_gear_cum.png)
+
+### Averages
+With wishing well:
+- Mean: 71.65 (20060.66 xtals)
+- Median: 72.00 (20160.00 xtals)
+- Mode: 70 (19600 xtals)
+
+Without wishing well:
+- Mean: 75.66 (21183.65 xtals)
+- Median: 76.00 (21280.00 xtals)
+- Mode: 74, 67 (20720, 18760 xtals)
+
+### Chances
+With wishing well:
+- 57.95 pulls has a 25.0% chance
+- 71.95 pulls has a 50.0% chance
+- 85.95 pulls has a 75.0% chance
+- 97.94 pulls has a 90.0% chance
+- 103.98 pulls has a 95.0% chance
+
+Without wishing well:
+- 61.98 pulls has a 25.0% chance
+- 75.98 pulls has a 50.0% chance
+- 90.99 pulls has a 75.0% chance
+- 100.96 pulls has a 90.0% chance
+- 107.90 pulls has a 95.0% chance
