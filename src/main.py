@@ -274,19 +274,15 @@ show_histogram(gear_res, "Gear pull successes w/ wishing well")
 
 class Xcalculator:
     def __init__(self, values, bins, labels=None):
-        self.values = values
-        self.bins = bins
+        self.values = values #contains y values
+        self.bins = bins #contains x values
         self.labels = labels
         self.dic = {x: [] for x in self.labels}
 
     def calculate_x_value(self, y_value):
-        # cumulative_sum = np.cumsum(self.values) #no need cuz alr cumsum'd
-        # cumulative_sum /= cumulative_sum[-1]
-        # if len(self.values) > 1:
         if isinstance(self.values, np.ndarray) and all(
             isinstance(x, np.ndarray) for x in self.values
         ):
-            # dic = self.dic
             for idx, x in enumerate(self.values):
                 index = np.where(x >= y_value)[0][0]
                 x_value = self.bins[index]
@@ -294,12 +290,29 @@ class Xcalculator:
                 self.dic[label].append(
                     f"{x_value:.2f} pulls has a {y_value*100}% chance"
                 )
-            # self.dic = dic
         else:
             index = np.where(self.values >= y_value)[0][0]
             x_value = self.bins[index]
             self.dic[self.labels[0]].append(
                 f"{x_value:.2f} pulls has a {y_value*100}% chance"
+            )
+
+    def calculate_y_value(self, x_value):
+        if isinstance(self.values, np.ndarray) and all(
+            isinstance(x, np.ndarray) for x in self.values
+        ):
+            index = np.where(self.bins >= x_value)[0][0]
+            for idx, x in enumerate(self.values):
+                y_value = x[index]
+                label = self.labels[idx]
+                self.dic[label].append(
+                    f"{x_value:.2f} pulls has a {(y_value*100):.2f}% chance"
+                )
+        else:
+            index = np.where(self.bins >= x_value)[0][0]
+            y_value = self.values[index]            
+            self.dic[self.labels[0]].append(
+                f"{x_value:.2f} pulls has a {(y_value*100):.2f}% chance"
             )
 
     def show_all(self):
