@@ -30,6 +30,26 @@ class CustomThread(Thread):
         Thread.join(self, *args)
         return self._return
 
+class ThreadStarter:
+    def __init__(self, threads):
+        self.threads = threads
+        self.results = []
+
+    def start(self):
+        result_queue = queue.Queue()
+
+        # Start the threads
+        for thread in self.threads:
+            thread.start()
+
+        # Wait for the threads to finish
+        for thread in self.threads:
+            result_queue.put(thread.join())
+
+        # Get the returned values
+        while not result_queue.empty():
+            result = result_queue.get()
+            self.results.append(result)
 
 def show_histogram(
     data, title, bin_count=1000, cumulative=False, fig_num=None, alpha=1, label=None
@@ -191,27 +211,15 @@ if save_file.exists():
         gear_res = dic["gears"]
         no_well_gear_res = dic["no_well_gears"]
 else:
-    threads = [
+    t_starter = ThreadStarter([
         CustomThread(target=pull_valk),
         CustomThread(target=pull_gears, kwargs={"wishing_well": True}),
         CustomThread(target=pull_gears, kwargs={"wishing_well": False}),
-    ]
+    ])
 
-    # Start the threads
-    for thread in threads:
-        thread.start()
+    t_starter.start()
 
-    result_queue = queue.Queue()
-    # Wait for the threads to finish
-    for thread in threads:
-        result_queue.put(thread.join())
-
-    # Get the returned values
-    results = []
-    while not result_queue.empty():
-        result = result_queue.get()
-        results.append(result)
-    valk_res, gear_res, no_well_gear_res = results
+    valk_res, gear_res, no_well_gear_res = t_starter.results
 
     with Path("pull_data.json").open("w") as f:
         dic = {"valks": valk_res, "gears": gear_res, "no_well_gears": no_well_gear_res}
