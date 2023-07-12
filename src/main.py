@@ -225,8 +225,12 @@ else:
         dic = {"valks": valk_res, "gears": gear_res, "no_well_gears": no_well_gear_res}
         json.dump(dic, f)
 
-combined_res = [x + y for x, y in zip(valk_res, gear_res)]
-no_well_combined_res = [x + y for x, y in zip(valk_res, no_well_gear_res)]
+valk_res = np.array(valk_res)
+gear_res = np.array(gear_res)
+no_well_gear_res = np.array(no_well_gear_res)
+
+combined_res = valk_res + gear_res
+no_well_combined_res = valk_res + no_well_gear_res
 
 valk_xtals = statistics.mean(valk_res) * 280
 gear_xtals = statistics.mean(gear_res) * 280
