@@ -261,14 +261,27 @@ def new_sim():
     return valk_res, gear_res, no_well_gear_res
 
 def main():
-    if saved_pulls_count != 0:
-        db.show_all()
-        
+    if saved_pulls_count != 0:                
         while True:
-            start_choice = input("Type the ID to view a simulation or 'n' to run a new one: ")
-            if start_choice == "n":
+            db.show_all()
+            print("Type the ID to view a simulation,\n"
+                "'n' to run a new one,\n"
+                "'d' to delete one.")
+            start_choice = input(">> ")
+            if start_choice.lower() == "n":
                 valk_res, gear_res, no_well_gear_res = new_sim()
                 break
+            elif start_choice.lower() == "d":
+                while True:
+                    id = input("Type the ID of the simulation you want to delete: ")
+                    row = db.get_row(id)
+                    if row:              
+                        db.delete_row(id)  
+                        print(f"ID {id} deleted.")
+                        break
+                    else:
+                        print("ID doesn't exist.")                    
+
             else:
                 row = db.get_row(start_choice)
                 if row:              

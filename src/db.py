@@ -66,6 +66,14 @@ class Database:
 
         return row
 
+    def delete_row(self, id):
+        cursor = self.conn.cursor()    
+
+        cursor.execute('DELETE FROM pulls WHERE id = ?', (id,))        
+
+        cursor.close()
+        self.conn.commit()    
+
     def close(self):
         if self.conn:
             self.conn.close()
