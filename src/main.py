@@ -13,7 +13,7 @@ from numpy.random import choice
 
 ROUNDS = 10000
 logging.basicConfig(level=logging.INFO)
-
+SHOW_EFFICIENCY = False
 
 class CustomThread(Thread):
     def __init__(
@@ -51,7 +51,7 @@ class ThreadStarter:
             result = result_queue.get()
             self.results.append(result)
 
-def show_histogram(
+def make_histogram(
     data, title, bin_count=1000, cumulative=False, fig_num=None, alpha=1, label=None
 ):
     if fig_num is None:
@@ -76,6 +76,25 @@ def show_histogram(
 
     return n, bins, label
 
+def make_bar(bins, values, title, labels=[]):
+
+    if not isinstance(values[0], np.ndarray):
+        values = [values]
+
+    if not labels:
+        labels = [None]
+
+    plt.figure() 
+    # creating the bar plot
+    for value, label in zip(values, labels):        
+        pulls = bins[:len(value)]
+        plt.bar(pulls, (value * 100) / pulls, label=label)        
+    plt.xlabel("Pulls")
+    plt.ylabel("Probability per pull")
+    plt.title(title)
+    if labels[0] != None:
+        ax = plt.gcf().axes[0]
+        legend = ax.legend(prop={"size": 10})
 
 def pull_valk(amount_wanted=1, pity=100):
     logging.info("Pulling valks")
@@ -272,8 +291,8 @@ calc_mean_median_mode(combined_res)
 print("Without wishing well:")
 calc_mean_median_mode(no_well_combined_res)
 
-show_histogram(valk_res, "Valk pull successes", 10)
-show_histogram(gear_res, "Gear pull successes w/ wishing well")
+make_histogram(valk_res, "Valk pull successes", 10)
+make_histogram(gear_res, "Gear pull successes w/ wishing well")
 
 
 class Xcalculator:
@@ -326,7 +345,7 @@ class Xcalculator:
                 print(f"- {value}")
 
 
-values, bins, labels = show_histogram(
+values, bins, labels = make_histogram(
     valk_res, "Valk pull successes (cumulative)", cumulative=True
 )
 print("VALK ONLY:")
@@ -338,7 +357,10 @@ xcal.calculate_x_value(0.90)
 xcal.calculate_x_value(0.95)
 xcal.show_all()
 
-values, bins, labels = show_histogram(
+if SHOW_EFFICIENCY:
+    make_bar(bins, values, "Valk efficiency")
+
+values, bins, labels = make_histogram(
     [gear_res, no_well_gear_res],
     "Gear pull successes (cumulative)",
     cumulative=True,
@@ -354,7 +376,10 @@ xcal.calculate_x_value(0.90)
 xcal.calculate_x_value(0.95)
 xcal.show_all()
 
-values, bins, labels = show_histogram(
+if SHOW_EFFICIENCY:
+    make_bar(bins, values, "Gear efficiency", ["With wishing well:", "Without wishing well:"])
+
+values, bins, labels = make_histogram(
     [combined_res, no_well_combined_res],
     "Combined pull successes (cumulative)",
     cumulative=True,
@@ -370,15 +395,7 @@ xcal.calculate_x_value(0.90)
 xcal.calculate_x_value(0.95)
 xcal.show_all()
 
+if SHOW_EFFICIENCY:
+    make_bar(bins, values, "Combined efficiency", ["With wishing well:", "Without wishing well:"])
 
-
-plt.figure() 
-# creating the bar plot
-plt.bar(bins[:-1], (values[0] * 100) / bins[:-1], label="With wishing well")
-plt.bar(bins[:-1], (values[1] * 100) / bins[:-1], label="Without wishing well")
-plt.xlabel("Pulls")
-plt.ylabel("Probability per pull")
-plt.title("Combined efficiency")
-ax = plt.gcf().axes[0]
-legend = ax.legend(prop={"size": 10})
 plt.show()
