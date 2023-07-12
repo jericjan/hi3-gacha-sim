@@ -366,4 +366,15 @@ xcal.calculate_x_value(0.90)
 xcal.calculate_x_value(0.95)
 xcal.show_all()
 
+
+
+plt.figure() 
+# creating the bar plot
+plt.bar(bins[:-1], (values[0] * 100) / bins[:-1], label="With wishing well")
+plt.bar(bins[:-1], (values[1] * 100) / bins[:-1], label="Without wishing well")
+plt.xlabel("Pulls")
+plt.ylabel("Probability per pull")
+plt.title("Combined efficiency")
+ax = plt.gcf().axes[0]
+legend = ax.legend(prop={"size": 10})
 plt.show()
