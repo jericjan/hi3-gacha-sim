@@ -372,11 +372,12 @@ def main():
     make_histogram(gear_res, "Gear pull successes w/ wishing well")
 
     class Xcalculator:
-        def __init__(self, values, bins, labels=None):
+        def __init__(self, values, bins, labels=None, title=""):
             self.values = values  # contains y values
             self.bins = bins  # contains x values
             self.labels = labels
             self.dic = {x: [] for x in self.labels}
+            self.title = title
 
         def calculate_x_value(self, y_value):
             if isinstance(self.values, np.ndarray) and all(
@@ -415,22 +416,28 @@ def main():
                 )
 
         def show_all(self):
+            print(self.title)
             for key, values in self.dic.items():
                 print(key)
                 for value in values:
                     print(f"- {value}")
+            self.dic = {x: [] for x in self.labels} # clears items
+            print("")
+
+    xcal_list = []
 
     values, bins, labels = make_histogram(
         valk_res, "Valk pull successes (cumulative)", cumulative=True
     )
-    print("VALK ONLY:")
-    xcal = Xcalculator(values, bins, ["Valk pulls"])
+
+    xcal = Xcalculator(values, bins, ["Valk pulls"], "VALK ONLY:")    
     xcal.calculate_x_value(0.25)
     xcal.calculate_x_value(0.5)
     xcal.calculate_x_value(0.75)
     xcal.calculate_x_value(0.90)
     xcal.calculate_x_value(0.95)
     xcal.show_all()
+    xcal_list.append(xcal)
 
     if SHOW_EFFICIENCY:
         make_bar(bins, values, "Valk efficiency")
@@ -441,15 +448,15 @@ def main():
         cumulative=True,
         alpha=0.5,
         label=["With wishing well:", "Without wishing well:"],
-    )
-    print("GEARS ONLY:")
-    xcal = Xcalculator(values, bins, labels)
+    )    
+    xcal = Xcalculator(values, bins, labels, "GEARS ONLY:")    
     xcal.calculate_x_value(0.25)
     xcal.calculate_x_value(0.5)
     xcal.calculate_x_value(0.75)
     xcal.calculate_x_value(0.90)
     xcal.calculate_x_value(0.95)
     xcal.show_all()
+    xcal_list.append(xcal)
 
     if SHOW_EFFICIENCY:
         make_bar(
@@ -466,14 +473,14 @@ def main():
         alpha=0.5,
         label=["With wishing well:", "Without wishing well:"],
     )
-    print("COMBINED:")
-    xcal = Xcalculator(values, bins, labels)
+    xcal = Xcalculator(values, bins, labels, "COMBINED:")    
     xcal.calculate_x_value(0.25)
     xcal.calculate_x_value(0.5)
     xcal.calculate_x_value(0.75)
     xcal.calculate_x_value(0.90)
     xcal.calculate_x_value(0.95)
     xcal.show_all()
+    xcal_list.append(xcal)
 
     if SHOW_EFFICIENCY:
         make_bar(
@@ -487,7 +494,29 @@ def main():
 
     plt.show()
 
-
+    while True:
+        print("Type a number of pulls or a percentage from 1%-100% to calculate the probability or number of pulls needed, respectively.\n"
+              "'q' to quit.")
+        user_input = input(">> ")
+        print("")
+        if user_input.lower() == "q":
+            break
+        elif user_input.isdigit(): # pulls input
+            user_input = int(user_input)
+            for xcal in xcal_list:
+                xcal.calculate_y_value(user_input)
+                xcal.show_all()
+        elif user_input.endswith("%"):
+            number_without_percent = user_input.rstrip('%')
+            if number_without_percent.isdigit():
+                percentage = int(number_without_percent)/100
+                for xcal in xcal_list:
+                    xcal.calculate_x_value(percentage)
+                    xcal.show_all()
+            else:
+                print("Invalid format: The number part of the percentage is not a number.")
+        else:
+            print("Invalid input.")
 try:
     main()
 finally:
