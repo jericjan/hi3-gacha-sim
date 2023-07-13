@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from scipy.stats.kde import gaussian_kde
 
 
 def make_histogram(
@@ -18,12 +19,33 @@ def make_histogram(
         alpha=alpha,
         label=label,
     )
+
+    if not isinstance(data[0], np.ndarray):
+        data = [data]
+
+    for idx, datum in enumerate(data):
+        try:
+            kde = gaussian_kde(datum)
+            dist_space = np.linspace(min(datum), max(datum), len(bins))
+            if cumulative is False:
+                line = plt.plot(dist_space, kde(bins) * n.sum(), label="Gaussian graph")
+            else:
+                y = kde(bins)
+                y = np.cumsum(y)
+                y = np.interp(y, (y.min(), y.max()), (0, 1))
+                line = plt.plot(dist_space, y, label="Gaussian graph" if label is None
+                                else f"{label[idx]} (Gaussian)")
+            line = line[0].get_xydata()
+        except Exception as e:
+            print(f"Failed to make gaussian KDE: {e}")
+        # print(line)
+
     plt.title(title)
     plt.xlabel("Pulls")
     plt.ylabel("Probablity" if cumulative else "Frequency")
-    if label:
-        ax = plt.gcf().axes[0]
-        ax.legend(prop={"size": 10})
+    # if label:
+    ax = plt.gcf().axes[0]
+    ax.legend(prop={"size": 10})
 
     return n, bins, label
 

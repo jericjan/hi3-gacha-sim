@@ -5,7 +5,7 @@ import random
 from numpy.random import choice
 from tqdm import tqdm
 
-BAR_FORMAT = '{desc}: {percentage:3.0f}% [{elapsed}<{remaining}]'
+BAR_FORMAT = "{desc}: {percentage:3.0f}% [{elapsed}<{remaining}]"
 
 
 def pull_valk(rounds, amount_wanted=1, pity=100):
@@ -16,8 +16,9 @@ def pull_valk(rounds, amount_wanted=1, pity=100):
 
     pull_success_results = []
 
-    for x in tqdm(range(rounds), desc="Valkyrie", mininterval=5, position=0,
-                  bar_format=BAR_FORMAT):
+    for x in tqdm(
+        range(rounds), desc="Valkyrie", mininterval=5, position=0, bar_format=BAR_FORMAT
+    ):
         pull_count = 0
         item_got = ""
         amount_got = 0
@@ -76,7 +77,7 @@ def pull_gears(rounds, wishing_well=True, gear_pity=50):
         mininterval=5,
         position=1 if wishing_well else 2,
         bar_format=BAR_FORMAT,
-        total=rounds
+        total=rounds,
     ):
         item_counts = dict.fromkeys(items, 0)
         pull_count = 0
