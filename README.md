@@ -6,6 +6,7 @@ From the simulations, it's shown that the average player will get the UP valyrie
 Not exactly new information, I know, but I wanted to try something.
 
 # The Results
+NOTE: The percentages shown below are cumulative chances, meaning they are the probability you obtain something in or under a specific number of pulls. They can also be interpreted as what percent of the playerbase has obtained it within a number of pulls.
 
 ## Valkyrie
 ![Valkyrie pull successes](img/valk_pull_cum.png)
