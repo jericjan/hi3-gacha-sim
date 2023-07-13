@@ -373,18 +373,18 @@ def main():
 
     class Xcalculator:
         def __init__(self, values, bins, labels=None, title=""):
-            self.values = values  # contains y values
+            if not isinstance(values[0], np.ndarray):
+                self.values = np.array([values]) # contains y values
+            else:
+                self.values = values  # contains y values
+
             self.bins = bins  # contains x values
             self.labels = labels
             self.dic = {x: [] for x in self.labels}
             self.title = title
 
         def calculate_x_value(self, y_value):
-            if not isinstance(self.values[0], np.ndarray):
-                self.values = np.array([self.values])
-
-            for idx, x in enumerate(self.values):
-                label = self.labels[idx]
+            for label, x in zip(self.labels, self.values):                
                 try:
                     index = np.where(x >= y_value)[0][0]
                     x_value = self.bins[index]                    
@@ -399,11 +399,7 @@ def main():
 
 
         def calculate_y_value(self, x_value):
-            if not isinstance(self.values[0], np.ndarray):
-                self.values = np.array([self.values])
-
-            for idx, x in enumerate(self.values):
-                label = self.labels[idx]
+            for label, x in zip(self.labels, self.values):                
                 try:
                     index = np.where(self.bins >= x_value)[0][0]                    
                     y_value = x[index]                    
