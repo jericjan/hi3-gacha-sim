@@ -1,11 +1,11 @@
 import json
 import logging
 import statistics
+import sys
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from pathlib import Path
-import sys
 
 from chart_helpers import make_bar, make_histogram
 from db import Database
