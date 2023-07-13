@@ -380,66 +380,41 @@ def main():
             self.title = title
 
         def calculate_x_value(self, y_value):
-            if isinstance(self.values, np.ndarray) and all(
-                isinstance(x, np.ndarray) for x in self.values
-            ):
-                for idx, x in enumerate(self.values):
-                    try:
-                        index = np.where(x >= y_value)[0][0]
-                        x_value = self.bins[index]
-                        label = self.labels[idx]
-                        self.dic[label].append(
-                            f"{x_value:.2f} pulls has a {y_value*100}% chance"
-                        )                        
-                    except IndexError:
-                        label = self.labels[idx]
-                        self.dic[label].append(
-                            f"[Out Of Bounds] pulls has a {y_value*100}% chance"
-                        )
+            if not isinstance(self.values[0], np.ndarray):
+                self.values = np.array([self.values])
 
-            else:
+            for idx, x in enumerate(self.values):
+                label = self.labels[idx]
                 try:
-                    index = np.where(self.values >= y_value)[0][0]
-                    x_value = self.bins[index]
-                    self.dic[self.labels[0]].append(
+                    index = np.where(x >= y_value)[0][0]
+                    x_value = self.bins[index]                    
+                    self.dic[label].append(
                         f"{x_value:.2f} pulls has a {y_value*100}% chance"
-                    )                    
-                except IndexError:
-                    self.dic[self.labels[0]].append(
+                    )                        
+                except IndexError:                    
+                    self.dic[label].append(
                         f"[Out Of Bounds] pulls has a {y_value*100}% chance"
-                    )                    
+                    )
+                   
 
 
         def calculate_y_value(self, x_value):
-            if isinstance(self.values, np.ndarray) and all(
-                isinstance(x, np.ndarray) for x in self.values
-            ):
-                try:
-                    index = np.where(self.bins >= x_value)[0][0]
-                    for idx, x in enumerate(self.values):
-                        y_value = x[index]
-                        label = self.labels[idx]
-                        self.dic[label].append(
-                            f"{x_value:.2f} pulls has a {(y_value*100):.2f}% chance"
-                        )                    
-                except IndexError:
-                    for idx, x in enumerate(self.values):
-                        label = self.labels[idx]
-                        self.dic[label].append(
-                            f"{x_value:.2f} pulls: Out Of Bounds"
-                        )                    
+            if not isinstance(self.values[0], np.ndarray):
+                self.values = np.array([self.values])
 
-            else:
+            for idx, x in enumerate(self.values):
+                label = self.labels[idx]
                 try:
-                    index = np.where(self.bins >= x_value)[0][0]
-                    y_value = self.values[index]
-                    self.dic[self.labels[0]].append(
+                    index = np.where(self.bins >= x_value)[0][0]                    
+                    y_value = x[index]                    
+                    self.dic[label].append(
                         f"{x_value:.2f} pulls has a {(y_value*100):.2f}% chance"
                     )                    
-                except IndexError:
-                    self.dic[self.labels[0]].append(
+                except IndexError:                    
+                    self.dic[label].append(
                         f"{x_value:.2f} pulls: Out Of Bounds"
-                    )                          
+                    )                    
+                       
 
 
         def show_all(self):
