@@ -374,7 +374,7 @@ def main():
     class Xcalculator:
         def __init__(self, values, bins, labels=None, title=""):
             if not isinstance(values[0], np.ndarray):
-                self.values = np.array([values]) # contains y values
+                self.values = np.array([values])  # contains y values
             else:
                 self.values = values  # contains y values
 
@@ -384,34 +384,28 @@ def main():
             self.title = title
 
         def calculate_x_value(self, y_value):
-            for label, x in zip(self.labels, self.values):                
+            for label, x in zip(self.labels, self.values):
                 try:
                     index = np.where(x >= y_value)[0][0]
-                    x_value = self.bins[index]                    
+                    x_value = self.bins[index]
                     self.dic[label].append(
                         f"{x_value:.2f} pulls has a {y_value*100}% chance"
-                    )                        
-                except IndexError:                    
+                    )
+                except IndexError:
                     self.dic[label].append(
                         f"[Out Of Bounds] pulls has a {y_value*100}% chance"
                     )
-                   
-
 
         def calculate_y_value(self, x_value):
-            for label, x in zip(self.labels, self.values):                
+            for label, x in zip(self.labels, self.values):
                 try:
-                    index = np.where(self.bins >= x_value)[0][0]                    
-                    y_value = x[index]                    
+                    index = np.where(self.bins >= x_value)[0][0]
+                    y_value = x[index]
                     self.dic[label].append(
                         f"{x_value:.2f} pulls has a {(y_value*100):.2f}% chance"
-                    )                    
-                except IndexError:                    
-                    self.dic[label].append(
-                        f"{x_value:.2f} pulls: Out Of Bounds"
-                    )                    
-                       
-
+                    )
+                except IndexError:
+                    self.dic[label].append(f"{x_value:.2f} pulls: Out Of Bounds")
 
         def show_all(self):
             print(self.title)
@@ -419,7 +413,7 @@ def main():
                 print(key)
                 for value in values:
                     print(f"- {value}")
-            self.dic = {x: [] for x in self.labels} # clears items
+            self.dic = {x: [] for x in self.labels}  # clears items
             print("")
 
     xcal_list = []
@@ -428,7 +422,7 @@ def main():
         valk_res, "Valk pull successes (cumulative)", cumulative=True
     )
 
-    xcal = Xcalculator(values, bins, ["Valk pulls"], "VALK ONLY:")    
+    xcal = Xcalculator(values, bins, ["Valk pulls"], "VALK ONLY:")
     xcal.calculate_x_value(0.25)
     xcal.calculate_x_value(0.5)
     xcal.calculate_x_value(0.75)
@@ -446,8 +440,8 @@ def main():
         cumulative=True,
         alpha=0.5,
         label=["With wishing well:", "Without wishing well:"],
-    )    
-    xcal = Xcalculator(values, bins, labels, "GEARS ONLY:")    
+    )
+    xcal = Xcalculator(values, bins, labels, "GEARS ONLY:")
     xcal.calculate_x_value(0.25)
     xcal.calculate_x_value(0.5)
     xcal.calculate_x_value(0.75)
@@ -471,7 +465,7 @@ def main():
         alpha=0.5,
         label=["With wishing well:", "Without wishing well:"],
     )
-    xcal = Xcalculator(values, bins, labels, "COMBINED:")    
+    xcal = Xcalculator(values, bins, labels, "COMBINED:")
     xcal.calculate_x_value(0.25)
     xcal.calculate_x_value(0.5)
     xcal.calculate_x_value(0.75)
@@ -493,28 +487,34 @@ def main():
     plt.show()
 
     while True:
-        print("Type a number of pulls or a percentage from 1%-100% to calculate the probability or number of pulls needed, respectively.\n"
-              "'q' to quit.")
+        print(
+            "Type a number of pulls or a percentage from 1%-100% to calculate the probability or number of pulls needed, respectively.\n"
+            "'q' to quit."
+        )
         user_input = input(">> ")
         print("")
         if user_input.lower() == "q":
             break
-        elif user_input.isdigit(): # pulls input
+        elif user_input.isdigit():  # pulls input
             user_input = int(user_input)
             for xcal in xcal_list:
                 xcal.calculate_y_value(user_input)
                 xcal.show_all()
         elif user_input.endswith("%"):
-            number_without_percent = user_input.rstrip('%')
+            number_without_percent = user_input.rstrip("%")
             if number_without_percent.isdigit():
-                percentage = int(number_without_percent)/100
+                percentage = int(number_without_percent) / 100
                 for xcal in xcal_list:
                     xcal.calculate_x_value(percentage)
                     xcal.show_all()
             else:
-                print("Invalid format: The number part of the percentage is not a number.")
+                print(
+                    "Invalid format: The number part of the percentage is not a number."
+                )
         else:
             print("Invalid input.")
+
+
 try:
     main()
 finally:
