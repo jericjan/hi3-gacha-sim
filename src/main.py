@@ -4,6 +4,8 @@ import statistics
 
 import matplotlib.pyplot as plt
 import numpy as np
+from pathlib import Path
+import sys
 
 from chart_helpers import make_bar, make_histogram
 from db import Database
@@ -12,7 +14,9 @@ from simulation_setup import Simulation
 logging.basicConfig(level=logging.INFO)
 SHOW_EFFICIENCY = False
 
-db = Database("saved_pulls.db")
+CURRENT_DIR = Path(sys.executable).parent if hasattr(sys, "frozen") else Path.cwd()
+
+db = Database(CURRENT_DIR / "saved_pulls.db")
 sim = Simulation(db)
 
 
