@@ -3,6 +3,7 @@ import logging
 import statistics
 import sys
 from pathlib import Path
+from typing import List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -121,8 +122,9 @@ def main():
 
         make_histogram(valk_res, "Valk pull successes", 10)
         make_histogram(gear_res, "Gear pull successes w/ wishing well")
+        make_histogram(combined_res, "Combined pull successes w/ wishing well")
 
-        class Xcalculator:
+        class ValueCalculator:
             def __init__(self, values, bins, labels=None, title=""):
                 if not isinstance(values[0], np.ndarray):
                     self.values = np.array([values])  # contains y values
@@ -134,7 +136,7 @@ def main():
                 self.dic = {x: [] for x in self.labels}
                 self.title = title
 
-            def calculate_x_value(self, y_value):
+            def get_x(self, y_value):
                 for label, x in zip(self.labels, self.values):
                     try:
                         index = np.where(x >= y_value)[0][0]
@@ -147,7 +149,7 @@ def main():
                             f"[Out Of Bounds] pulls has a {y_value*100}% chance"
                         )
 
-            def calculate_y_value(self, x_value):
+            def get_y(self, x_value):
                 for label, x in zip(self.labels, self.values):
                     try:
                         index = np.where(self.bins >= x_value)[0][0]
@@ -167,20 +169,20 @@ def main():
                 self.dic = {x: [] for x in self.labels}  # clears items
                 print("")
 
-        xcal_list = []
+        cal_list: List[ValueCalculator] = []
 
         values, bins, labels = make_histogram(
             valk_res, "Valk pull successes (cumulative)", cumulative=True
         )
 
-        xcal = Xcalculator(values, bins, ["Valk pulls"], "VALK ONLY:")
-        xcal.calculate_x_value(0.25)
-        xcal.calculate_x_value(0.5)
-        xcal.calculate_x_value(0.75)
-        xcal.calculate_x_value(0.90)
-        xcal.calculate_x_value(0.95)
-        xcal.show_all()
-        xcal_list.append(xcal)
+        cal = ValueCalculator(values, bins, ["Valk pulls"], "VALK ONLY:")
+        cal.get_x(0.25)
+        cal.get_x(0.5)
+        cal.get_x(0.75)
+        cal.get_x(0.90)
+        cal.get_x(0.95)
+        cal.show_all()
+        cal_list.append(cal)
 
         if SHOW_EFFICIENCY:
             make_bar(bins, values, "Valk efficiency")
@@ -192,14 +194,14 @@ def main():
             alpha=0.5,
             label=["With wishing well:", "Without wishing well:"],
         )
-        xcal = Xcalculator(values, bins, labels, "GEARS ONLY:")
-        xcal.calculate_x_value(0.25)
-        xcal.calculate_x_value(0.5)
-        xcal.calculate_x_value(0.75)
-        xcal.calculate_x_value(0.90)
-        xcal.calculate_x_value(0.95)
-        xcal.show_all()
-        xcal_list.append(xcal)
+        cal = ValueCalculator(values, bins, labels, "GEARS ONLY:")
+        cal.get_x(0.25)
+        cal.get_x(0.5)
+        cal.get_x(0.75)
+        cal.get_x(0.90)
+        cal.get_x(0.95)
+        cal.show_all()
+        cal_list.append(cal)
 
         if SHOW_EFFICIENCY:
             make_bar(
@@ -216,14 +218,14 @@ def main():
             alpha=0.5,
             label=["With wishing well:", "Without wishing well:"],
         )
-        xcal = Xcalculator(values, bins, labels, "COMBINED:")
-        xcal.calculate_x_value(0.25)
-        xcal.calculate_x_value(0.5)
-        xcal.calculate_x_value(0.75)
-        xcal.calculate_x_value(0.90)
-        xcal.calculate_x_value(0.95)
-        xcal.show_all()
-        xcal_list.append(xcal)
+        cal = ValueCalculator(values, bins, labels, "COMBINED:")
+        cal.get_x(0.25)
+        cal.get_x(0.5)
+        cal.get_x(0.75)
+        cal.get_x(0.90)
+        cal.get_x(0.95)
+        cal.show_all()
+        cal_list.append(cal)
 
         if SHOW_EFFICIENCY:
             make_bar(
@@ -250,16 +252,16 @@ def main():
                 break
             elif user_input.isdigit():  # pulls input
                 user_input = int(user_input)
-                for xcal in xcal_list:
-                    xcal.calculate_y_value(user_input)
-                    xcal.show_all()
+                for cal in cal_list:
+                    cal.get_y(user_input)
+                    cal.show_all()
             elif user_input.endswith("%"):
                 number_without_percent = user_input.rstrip("%")
                 if number_without_percent.isdigit():
                     percentage = int(number_without_percent) / 100
-                    for xcal in xcal_list:
-                        xcal.calculate_x_value(percentage)
-                        xcal.show_all()
+                    for cal in cal_list:
+                        cal.get_x(percentage)
+                        cal.show_all()
                 else:
                     print(
                         "Invalid format: "
