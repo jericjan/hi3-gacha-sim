@@ -10,6 +10,7 @@ from threading import Thread
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.random import choice
+
 from db import Database
 
 DEFAULT_ROUNDS = 10000
@@ -20,6 +21,7 @@ SHOW_EFFICIENCY = False
 
 db = Database("saved_pulls.db")
 saved_pulls_count = db.count_items()
+
 
 class CustomThread(Thread):
     def __init__(
@@ -35,6 +37,7 @@ class CustomThread(Thread):
     def join(self, *args):
         Thread.join(self, *args)
         return self._return
+
 
 class ThreadStarter:
     def __init__(self, threads):
@@ -56,6 +59,7 @@ class ThreadStarter:
         while not result_queue.empty():
             result = result_queue.get()
             self.results.append(result)
+
 
 def make_histogram(
     data, title, bin_count=1000, cumulative=False, fig_num=None, alpha=1, label=None
@@ -82,25 +86,26 @@ def make_histogram(
 
     return n, bins, label
 
-def make_bar(bins, values, title, labels=[]):
 
+def make_bar(bins, values, title, labels=[]):
     if not isinstance(values[0], np.ndarray):
         values = [values]
 
     if not labels:
         labels = [None]
 
-    plt.figure() 
+    plt.figure()
     # creating the bar plot
-    for value, label in zip(values, labels):        
-        pulls = bins[:len(value)]
-        plt.bar(pulls, (value * 100) / pulls, label=label)        
+    for value, label in zip(values, labels):
+        pulls = bins[: len(value)]
+        plt.bar(pulls, (value * 100) / pulls, label=label)
     plt.xlabel("Pulls")
     plt.ylabel("Probability per pull")
     plt.title(title)
     if labels[0] != None:
         ax = plt.gcf().axes[0]
         legend = ax.legend(prop={"size": 10})
+
 
 def pull_valk(rounds, amount_wanted=1, pity=100):
     logging.info("Pulling valks")
@@ -226,6 +231,7 @@ def pull_gears(rounds, wishing_well=True, gear_pity=50):
         logging.info("Pulling gears w/o wishing well finished.")
     return pull_success_results
 
+
 def get_integer_input(prompt, default):
     while True:
         try:
@@ -234,24 +240,40 @@ def get_integer_input(prompt, default):
         except ValueError:
             print("Invalid input. Please enter an integer.")
 
+
 def setup_info():
     print("Leave blank to use the default value.")
     name = input("Give this simulation a name: ") or "Unnamed"
-    
+
     rounds = get_integer_input("How many rounds", DEFAULT_ROUNDS)
     valk_pity = get_integer_input("What's the valkyrie pity", DEFAULT_VALK_PITY)
     gear_pity = get_integer_input("What's the gear pity", DEFAULT_GEAR_PITY)
 
     return name, rounds, valk_pity, gear_pity
 
+
 def new_sim():
     name, rounds, valk_pity, gear_pity = setup_info()
-        
-    t_starter = ThreadStarter([
-        CustomThread(target=pull_valk, kwargs={"rounds": rounds, "pity": valk_pity}),
-        CustomThread(target=pull_gears, kwargs={"rounds": rounds, "wishing_well": True, "gear_pity": gear_pity}),
-        CustomThread(target=pull_gears, kwargs={"rounds": rounds, "wishing_well": False, "gear_pity": gear_pity}),
-    ])
+
+    t_starter = ThreadStarter(
+        [
+            CustomThread(
+                target=pull_valk, kwargs={"rounds": rounds, "pity": valk_pity}
+            ),
+            CustomThread(
+                target=pull_gears,
+                kwargs={"rounds": rounds, "wishing_well": True, "gear_pity": gear_pity},
+            ),
+            CustomThread(
+                target=pull_gears,
+                kwargs={
+                    "rounds": rounds,
+                    "wishing_well": False,
+                    "gear_pity": gear_pity,
+                },
+            ),
+        ]
+    )
 
     t_starter.start()
 
@@ -260,13 +282,16 @@ def new_sim():
     db.add(name, rounds, valk_pity, gear_pity, dic)
     return valk_res, gear_res, no_well_gear_res
 
+
 def main():
-    if saved_pulls_count != 0:                
+    if saved_pulls_count != 0:
         while True:
             db.show_all()
-            print("Type the ID to view a simulation,\n"
+            print(
+                "Type the ID to view a simulation,\n"
                 "'n' to run a new one,\n"
-                "'d' to delete one.")
+                "'d' to delete one."
+            )
             start_choice = input(">> ")
             if start_choice.lower() == "n":
                 valk_res, gear_res, no_well_gear_res = new_sim()
@@ -275,27 +300,26 @@ def main():
                 while True:
                     id = input("Type the ID of the simulation you want to delete: ")
                     row = db.get_row(id)
-                    if row:              
-                        db.delete_row(id)  
+                    if row:
+                        db.delete_row(id)
                         print(f"ID {id} deleted.")
                         break
                     else:
-                        print("ID doesn't exist.")                    
+                        print("ID doesn't exist.")
 
             else:
                 row = db.get_row(start_choice)
-                if row:              
-                    row = json.loads(row[0])  
+                if row:
+                    row = json.loads(row[0])
                     valk_res = row["valks"]
                     gear_res = row["gears"]
-                    no_well_gear_res = row["no_well_gears"]                
+                    no_well_gear_res = row["no_well_gears"]
                     break
                 else:
                     print("ID doesn't exist.")
     else:
         print("No saved pulls yet.")
         valk_res, gear_res, no_well_gear_res = new_sim()
-
 
     valk_res = np.array(valk_res)
     gear_res = np.array(gear_res)
@@ -306,7 +330,6 @@ def main():
 
     valk_xtals = statistics.mean(valk_res) * 280
     gear_xtals = statistics.mean(gear_res) * 280
-
 
     def calc_mean_median_mode(data):
         mean = statistics.mean(data)
@@ -322,8 +345,9 @@ def main():
 
         print(f"- Min: {min(data):.2f} Max: {max(data):.2f}")
 
-
-    print(f"Average pulls to get valk: {statistics.mean(valk_res)} ({valk_xtals} crystals)")
+    print(
+        f"Average pulls to get valk: {statistics.mean(valk_res)} ({valk_xtals} crystals)"
+    )
     print(
         f"Average pulls to get all gear: {statistics.mean(gear_res)} ({gear_xtals} crystals)"
     )
@@ -347,11 +371,10 @@ def main():
     make_histogram(valk_res, "Valk pull successes", 10)
     make_histogram(gear_res, "Gear pull successes w/ wishing well")
 
-
     class Xcalculator:
         def __init__(self, values, bins, labels=None):
-            self.values = values #contains y values
-            self.bins = bins #contains x values
+            self.values = values  # contains y values
+            self.bins = bins  # contains x values
             self.labels = labels
             self.dic = {x: [] for x in self.labels}
 
@@ -386,7 +409,7 @@ def main():
                     )
             else:
                 index = np.where(self.bins >= x_value)[0][0]
-                y_value = self.values[index]            
+                y_value = self.values[index]
                 self.dic[self.labels[0]].append(
                     f"{x_value:.2f} pulls has a {(y_value*100):.2f}% chance"
                 )
@@ -396,7 +419,6 @@ def main():
                 print(key)
                 for value in values:
                     print(f"- {value}")
-
 
     values, bins, labels = make_histogram(
         valk_res, "Valk pull successes (cumulative)", cumulative=True
@@ -430,7 +452,12 @@ def main():
     xcal.show_all()
 
     if SHOW_EFFICIENCY:
-        make_bar(bins, values, "Gear efficiency", ["With wishing well:", "Without wishing well:"])
+        make_bar(
+            bins,
+            values,
+            "Gear efficiency",
+            ["With wishing well:", "Without wishing well:"],
+        )
 
     values, bins, labels = make_histogram(
         [combined_res, no_well_combined_res],
@@ -449,7 +476,12 @@ def main():
     xcal.show_all()
 
     if SHOW_EFFICIENCY:
-        make_bar(bins, values, "Combined efficiency", ["With wishing well:", "Without wishing well:"])
+        make_bar(
+            bins,
+            values,
+            "Combined efficiency",
+            ["With wishing well:", "Without wishing well:"],
+        )
 
     print("Close all graph windows to continue...")
 
