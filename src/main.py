@@ -384,36 +384,63 @@ def main():
                 isinstance(x, np.ndarray) for x in self.values
             ):
                 for idx, x in enumerate(self.values):
-                    index = np.where(x >= y_value)[0][0]
-                    x_value = self.bins[index]
-                    label = self.labels[idx]
-                    self.dic[label].append(
-                        f"{x_value:.2f} pulls has a {y_value*100}% chance"
-                    )
+                    try:
+                        index = np.where(x >= y_value)[0][0]
+                        x_value = self.bins[index]
+                        label = self.labels[idx]
+                        self.dic[label].append(
+                            f"{x_value:.2f} pulls has a {y_value*100}% chance"
+                        )                        
+                    except IndexError:
+                        label = self.labels[idx]
+                        self.dic[label].append(
+                            f"[Out Of Bounds] pulls has a {y_value*100}% chance"
+                        )
+
             else:
-                index = np.where(self.values >= y_value)[0][0]
-                x_value = self.bins[index]
-                self.dic[self.labels[0]].append(
-                    f"{x_value:.2f} pulls has a {y_value*100}% chance"
-                )
+                try:
+                    index = np.where(self.values >= y_value)[0][0]
+                    x_value = self.bins[index]
+                    self.dic[self.labels[0]].append(
+                        f"{x_value:.2f} pulls has a {y_value*100}% chance"
+                    )                    
+                except IndexError:
+                    self.dic[self.labels[0]].append(
+                        f"[Out Of Bounds] pulls has a {y_value*100}% chance"
+                    )                    
+
 
         def calculate_y_value(self, x_value):
             if isinstance(self.values, np.ndarray) and all(
                 isinstance(x, np.ndarray) for x in self.values
             ):
-                index = np.where(self.bins >= x_value)[0][0]
-                for idx, x in enumerate(self.values):
-                    y_value = x[index]
-                    label = self.labels[idx]
-                    self.dic[label].append(
-                        f"{x_value:.2f} pulls has a {(y_value*100):.2f}% chance"
-                    )
+                try:
+                    index = np.where(self.bins >= x_value)[0][0]
+                    for idx, x in enumerate(self.values):
+                        y_value = x[index]
+                        label = self.labels[idx]
+                        self.dic[label].append(
+                            f"{x_value:.2f} pulls has a {(y_value*100):.2f}% chance"
+                        )                    
+                except IndexError:
+                    for idx, x in enumerate(self.values):
+                        label = self.labels[idx]
+                        self.dic[label].append(
+                            f"{x_value:.2f} pulls: Out Of Bounds"
+                        )                    
+
             else:
-                index = np.where(self.bins >= x_value)[0][0]
-                y_value = self.values[index]
-                self.dic[self.labels[0]].append(
-                    f"{x_value:.2f} pulls has a {(y_value*100):.2f}% chance"
-                )
+                try:
+                    index = np.where(self.bins >= x_value)[0][0]
+                    y_value = self.values[index]
+                    self.dic[self.labels[0]].append(
+                        f"{x_value:.2f} pulls has a {(y_value*100):.2f}% chance"
+                    )                    
+                except IndexError:
+                    self.dic[self.labels[0]].append(
+                        f"{x_value:.2f} pulls: Out Of Bounds"
+                    )                          
+
 
         def show_all(self):
             print(self.title)
