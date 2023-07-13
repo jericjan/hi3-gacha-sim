@@ -74,7 +74,7 @@ class Database:
     def get_row(self, id):
         cursor = self.conn.cursor()
 
-        cursor.execute("SELECT data FROM pulls WHERE id = ?", (id,))
+        cursor.execute("SELECT data, name FROM pulls WHERE id = ?", (id,))
         row = cursor.fetchone()
         cursor.close()
         self.conn.commit()
