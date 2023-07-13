@@ -13,14 +13,14 @@ class Database:
         try:
             cursor.execute(
                 """CREATE TABLE IF NOT EXISTS "pulls" (
-                                "id" INTEGER,
-                                "name" TEXT,
-                                "rounds" INTEGER,
-                                "valk_pity" INTEGER,
-                                "gear_pity" INTEGER,
-                                "data" TEXT,
-                                PRIMARY KEY("id")
-                            )"""
+                    "id" INTEGER,
+                    "name" TEXT,
+                    "rounds" INTEGER,
+                    "valk_pity" INTEGER,
+                    "gear_pity" INTEGER,
+                    "data" TEXT,
+                    PRIMARY KEY("id")
+                )"""
             )
         except Exception as e:
             print(e)
@@ -41,7 +41,12 @@ class Database:
         data_json = json.dumps(data)
 
         # Prepare the query with the parameters
-        query = "INSERT INTO pulls (name, rounds, valk_pity, gear_pity, data) VALUES (?, ?, ?, ?, ?)"
+        query = (
+            "INSERT INTO pulls "
+            "(name, rounds, valk_pity, gear_pity, data) "
+            "VALUES (?, ?, ?, ?, ?)"
+        )
+
         params = (name, rounds, valk_pity, gear_pity, data_json)
 
         # Execute the query with the parameters
@@ -51,14 +56,17 @@ class Database:
 
     def show_all(self):
         cursor = self.conn.cursor()
-        cursor.execute("SELECT id, name, rounds, valk_pity, gear_pity FROM pulls")
+        cursor.execute("SELECT id, name, rounds, valk_pity, gear_pity " "FROM pulls")
         rows = cursor.fetchall()
         print(
-            f"{'ID'.center(5)} | {'Name'.center(30)} | {'Rounds'.center(7)} | {'Valk Pity'.center(9)} | {'Gear Pity'.center(9)}"
+            f"{'ID'.center(5)} | {'Name'.center(30)} | {'Rounds'.center(7)} | "
+            f"{'Valk Pity'.center(9)} | {'Gear Pity'.center(9)}"
         )
         for row in rows:
             print(
-                f"{str(row[0]).center(5)} | {str(row[1]).center(30)} | {str(row[2]).center(7)} | {str(row[3]).center(9)} | {str(row[4]).center(9)}"
+                f"{str(row[0]).center(5)} | {str(row[1]).center(30)} | "
+                f"{str(row[2]).center(7)} | {str(row[3]).center(9)} | "
+                f"{str(row[4]).center(9)}"
             )
         cursor.close()
         self.conn.commit()

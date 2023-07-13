@@ -4,7 +4,6 @@ import logging
 import queue
 import random
 import statistics
-from pathlib import Path
 from threading import Thread
 
 import matplotlib.pyplot as plt
@@ -82,7 +81,7 @@ def make_histogram(
     plt.ylabel("Probablity" if cumulative else "Frequency")
     if label:
         ax = plt.gcf().axes[0]
-        legend = ax.legend(prop={"size": 10})
+        ax.legend(prop={"size": 10})
 
     return n, bins, label
 
@@ -102,9 +101,9 @@ def make_bar(bins, values, title, labels=[]):
     plt.xlabel("Pulls")
     plt.ylabel("Probability per pull")
     plt.title(title)
-    if labels[0] != None:
+    if labels[0] is not None:
         ax = plt.gcf().axes[0]
-        legend = ax.legend(prop={"size": 10})
+        ax.legend(prop={"size": 10})
 
 
 def pull_valk(rounds, amount_wanted=1, pity=100):
@@ -178,7 +177,9 @@ def pull_gears(rounds, wishing_well=True, gear_pity=50):
         last_round_logs = []
         while len(items_got) < len(items_wanted):
             last_round_logs.append(
-                f"=====ROUND {str(idx+1).ljust(len(str(rounds)))}; PULL {str(pull_count).ljust(3)}; PITY {str(pity_count).ljust(3)}; START!!!======= {item_counts}"
+                f"=====ROUND {str(idx+1).ljust(len(str(rounds)))}; "
+                f"PULL {str(pull_count).ljust(3)}; PITY {str(pity_count).ljust(3)}; "
+                f"START!!!======= {item_counts}"
             )
             if pull_count > 200:
                 with open("log.txt", "w") as f:
@@ -213,7 +214,9 @@ def pull_gears(rounds, wishing_well=True, gear_pity=50):
                     wishing_well_msg = "(Wishing well-able)"
                     break
             last_round_logs.append(
-                f"=====ROUND {str(idx+1).ljust(len(str(rounds)))}; PULL {str(pull_count).ljust(3)}; PITY {str(pity_count).ljust(3)}; END!!!======= {item_counts}"
+                f"=====ROUND {str(idx+1).ljust(len(str(rounds)))}; "
+                f"PULL {str(pull_count).ljust(3)}; PITY {str(pity_count).ljust(3)}; "
+                f"END!!!======= {item_counts}"
             )
 
         item_counts = dict(
@@ -340,16 +343,19 @@ def main():
 
         mode = statistics.multimode(data)
         print(
-            f"- Mode: {', '.join(str(x) for x in mode)} ({', '.join([str(x*280) for x in mode])} xtals)"
+            f"- Mode: {', '.join(str(x) for x in mode)} "
+            f"({', '.join([str(x*280) for x in mode])} xtals)"
         )
 
         print(f"- Min: {min(data):.2f} Max: {max(data):.2f}")
 
     print(
-        f"Average pulls to get valk: {statistics.mean(valk_res)} ({valk_xtals} crystals)"
+        f"Average pulls to get valk: "
+        f"{statistics.mean(valk_res)} ({valk_xtals} crystals)"
     )
     print(
-        f"Average pulls to get all gear: {statistics.mean(gear_res)} ({gear_xtals} crystals)"
+        f"Average pulls to get all gear: "
+        f"{statistics.mean(gear_res)} ({gear_xtals} crystals)"
     )
     print(f"Total crystals to 4/4 on average: {valk_xtals + gear_xtals}")
     print("\n")
@@ -488,7 +494,8 @@ def main():
 
     while True:
         print(
-            "Type a number of pulls or a percentage from 1%-100% to calculate the probability or number of pulls needed, respectively.\n"
+            "Type a number of pulls or a percentage from 1%-100% to calculate "
+            "the probability or number of pulls needed, respectively.\n"
             "'q' to quit."
         )
         user_input = input(">> ")
